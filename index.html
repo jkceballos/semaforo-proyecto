@@ -1,0 +1,412 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Misión Proyecto Formativo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: tablero de obra del equipo. Pizarra arriba con el avance, una vista a la vez y barra de pestañas abajo, como una app del celular */
+:root {
+  --paper: #f3f5f1; --sheet: #ffffff; --ink: #1a2520; --ink-soft: #56645c; --line: #d3dcd3;
+  --board: #183630; --board-2: #21463e; --board-ink: #eef4ef; --chalk: #f5d77a;
+  --accent: #9b1d3a; --accent-soft: #f7e6ea;
+  --ok: #2b7d00; --ok-bg: #e5f3dc; --warn: #a86400; --warn-bg: #fdf0d8; --bad: #b3261e; --bad-bg: #fbe6e4;
+  --code-bg: #14201c; --code-ink: #e3ece6; --focus: #e08a00;
+  --display: "Bricolage Grotesque", "Arial Narrow", Arial, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #111816; --sheet: #18211e; --ink: #e5ede8; --ink-soft: #a4b4ab; --line: #2c3a35;
+  --board: #0d211d; --board-2: #163028; --board-ink: #e5efe8; --chalk: #f2cf63; --accent: #f07b96; --accent-soft: #3a1b24;
+  --ok: #84d65c; --ok-bg: #1a3313; --warn: #f0b45a; --warn-bg: #3a2a12; --bad: #ff8f84; --bad-bg: #3c1b18;
+  --code-bg: #0b1311; --code-ink: #e3ece6; --focus: #f2a33a; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #111816; --sheet: #18211e; --ink: #e5ede8; --ink-soft: #a4b4ab; --line: #2c3a35;
+  --board: #0d211d; --board-2: #163028; --board-ink: #e5efe8; --chalk: #f2cf63; --accent: #f07b96; --accent-soft: #3a1b24;
+  --ok: #84d65c; --ok-bg: #1a3313; --warn: #f0b45a; --warn-bg: #3a2a12; --bad: #ff8f84; --bad-bg: #3c1b18;
+  --code-bg: #0b1311; --code-ink: #e3ece6; --focus: #f2a33a; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--board); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.15; margin: 0; }
+code { font-family: var(--mono); font-size: .86em; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3em; overflow-wrap: anywhere; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.board { background: var(--board); color: var(--board-ink); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.board-in { max-width: 860px; margin: 0 auto; padding-block: 10px 12px; display: grid; gap: 8px; }
+.brand { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand h1 { font-size: 1.25rem; font-weight: 800; }
+.brand h1 span { color: var(--chalk); }
+.brand small { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .8; }
+.meter { display: flex; align-items: center; gap: 10px; }
+.meter-bar { flex: 1; height: 8px; background: var(--board-2); border-radius: 8px; overflow: hidden; }
+.meter-bar i { display: block; height: 100%; width: 0; background: var(--chalk); transition: width .4s ease; }
+.meter b { font-size: .85rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+main { max-width: 860px; margin: 0 auto; padding-block: 20px calc(96px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.view { display: grid; gap: 22px; }
+.view > *, .block > * { min-width: 0; }
+.eyebrow { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+.view > header h2 { font-size: clamp(1.6rem, 6vw, 2.3rem); font-weight: 800; margin-top: 4px; }
+.view > header p { margin: 10px 0 0; font-size: 1.05rem; max-width: 64ch; }
+.block { display: grid; gap: 10px; }
+.block > h3 { font-size: 1.2rem; }
+p { margin: 0; }
+.prose { display: grid; gap: 8px; max-width: 68ch; }
+.note { border: 1px dashed var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; }
+.note b { color: var(--accent); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.card { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.card p { color: var(--ink-soft); font-size: .94rem; }
+.field { display: grid; gap: 4px; }
+.field label { font-weight: 700; font-size: .92rem; }
+.field input, .field select, .field textarea { padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--sheet); width: 100%; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.btn { border: 1.5px solid var(--board); background: transparent; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
+.btn.primary { background: var(--board); color: var(--board-ink); }
+.btn.small { padding: 6px 12px; font-size: .88rem; }
+.btn.ghost { border-color: var(--line); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--sheet); }
+.tbl table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+.tbl th, .tbl td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl th { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.tbl tr:last-child td { border-bottom: 0; }
+
+/* semáforo */
+.sem { display: grid; gap: 8px; }
+.sem-fase { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin-top: 8px; }
+.sem-item { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
+.sem-item[data-c="verde"] { border-left: 6px solid var(--ok); }
+.sem-item[data-c="amarillo"] { border-left: 6px solid var(--warn); }
+.sem-item[data-c="rojo"] { border-left: 6px solid var(--bad); }
+.sem-top { display: flex; gap: 10px; justify-content: space-between; align-items: start; flex-wrap: wrap; }
+.sem-top span { flex: 1 1 200px; }
+.sem-top small { color: var(--ink-soft); font-family: var(--mono); font-size: .75rem; }
+.clave { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-left: 6px; }
+.tri { display: flex; gap: 6px; }
+.tri button { border: 1.5px solid var(--line); background: var(--paper); border-radius: 20px; padding: 6px 12px; font-size: .85rem; font-weight: 700; cursor: pointer; }
+.tri button[aria-pressed="true"][data-v="verde"] { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.tri button[aria-pressed="true"][data-v="amarillo"] { background: var(--warn-bg); border-color: var(--warn); color: var(--warn); }
+.tri button[aria-pressed="true"][data-v="rojo"] { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.verdict { border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; background: var(--sheet); border: 2px solid var(--board); }
+.verdict h3 { font-size: 1.3rem; }
+.counts { display: flex; gap: 14px; flex-wrap: wrap; font-variant-numeric: tabular-nums; font-weight: 700; }
+.counts .v { color: var(--ok); } .counts .a { color: var(--warn); } .counts .r { color: var(--bad); }
+
+/* misiones */
+.mision { background: var(--sheet); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.mision.done { border-color: var(--ok); }
+.mision.na { opacity: .55; }
+.mision > summary { list-style: none; cursor: pointer; padding: 14px; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.mision > summary::-webkit-details-marker { display: none; }
+.mnum { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--board); color: var(--board-ink); font-weight: 700; font-size: .85rem; }
+.mision.done .mnum { background: var(--ok); color: var(--sheet); }
+.mtit b { display: block; line-height: 1.25; }
+.mtit small { color: var(--ink-soft); font-size: .82rem; }
+.mtime { font-size: .8rem; color: var(--ink-soft); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mbody { padding: 0 14px 16px; display: grid; gap: 14px; }
+.tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: var(--paper); border: 1px solid var(--line); margin-right: 4px; }
+.tag.ra { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+ol.pasos { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.evid { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; background: var(--ok-bg); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+.evid input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ok); }
+details.ej { border: 1px solid var(--line); border-radius: 10px; }
+details.ej > summary { cursor: pointer; padding: 10px 12px; font-weight: 700; }
+details.ej > div { padding: 0 12px 12px; display: grid; gap: 10px; }
+pre.sql { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 12px; font-family: var(--mono); font-size: .76rem; line-height: 1.5; overflow-x: auto; white-space: pre; }
+
+/* constructor de tablas */
+.builder { display: grid; gap: 10px; }
+.brow { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
+.brow-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.brow-head b { font-size: .9rem; }
+.bfields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+.bfields .field input, .bfields .field select { padding: 8px 10px; }
+.del { border: 0; background: none; color: var(--bad); font-weight: 700; cursor: pointer; font-size: .85rem; }
+.toast { font-size: .88rem; color: var(--ok); font-weight: 700; min-height: 1.2em; }
+
+/* reporte */
+textarea.report { width: 100%; min-height: 360px; font-family: var(--mono); font-size: .78rem; line-height: 1.5; padding: 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--sheet); white-space: pre; overflow-x: auto; }
+
+/* barra inferior */
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--sheet); border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+nav.tabs ul { list-style: none; margin: 0 auto; padding: 0; max-width: 860px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+nav.tabs a { display: grid; justify-items: center; gap: 2px; padding: 8px 2px 10px; text-decoration: none; color: var(--ink-soft); font-size: .74rem; font-weight: 700; }
+nav.tabs a svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+nav.tabs a[aria-current="page"] { color: var(--accent); }
+.next { display: flex; justify-content: flex-end; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="board">
+  <div class="board-in">
+    <div class="brand"><h1>Misión <span>Proyecto</span></h1><small id="teamTag">Trabajo remoto · ADSO 3230489</small></div>
+    <div class="meter" aria-label="Avance del equipo"><div class="meter-bar"><i id="meterFill"></i></div><b id="meterTxt">0 de 0 misiones</b></div>
+  </div>
+</header>
+<main id="app"></main>
+<nav class="tabs" aria-label="Secciones">
+  <ul>
+    <li><a href="#inicio" data-tab="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Equipo</a></li>
+    <li><a href="#semaforo" data-tab="semaforo"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="3"/><circle cx="12" cy="7" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="17" r="1.6"/></svg>Semáforo</a></li>
+    <li><a href="#lunes" data-tab="lunes"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Lunes</a></li>
+    <li><a href="#martes" data-tab="martes"><svg viewBox="0 0 24 24"><path d="M14 7l3-3 3 3-3 3M17 4v6"/><path d="M4 20l7-7M9 13l2 2"/><rect x="3" y="3" width="8" height="8" rx="1"/></svg>Martes</a></li>
+    <li><a href="#reporte" data-tab="reporte"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h6"/></svg>Reporte</a></li>
+  </ul>
+</nav>
+
+<script>
+const D = {"meta":{"titulo":"Del diseño al código: ponga a tono su proyecto","subtitulo":"Trabajo remoto de dos días para revisar los entregables del proyecto formativo y dar el paso a la construcción","ejemplo":"Ferretería Don Chepe","ejemploDesc":"una ferretería de barrio en Olaya Herrera (Cartagena) que lleva el inventario y las ventas en un cuaderno"},"semaforo":[{"fase":"Análisis","id":"s1","rap":"593346","t":"Empresa o cliente identificado y sus procesos caracterizados","clave":false},{"fase":"Análisis","id":"s2","rap":"593347","t":"Informe de requisitos funcionales y no funcionales","clave":true},{"fase":"Análisis","id":"s3","rap":"593345","t":"Requisitos validados con el cliente","clave":false},{"fase":"Análisis","id":"s4","rap":"592373","t":"Casos de uso o historias de usuario","clave":true},{"fase":"Planeación","id":"s5","rap":"593062","t":"Propuesta técnica del software","clave":false},{"fase":"Planeación","id":"s6","rap":"593101","t":"Modelo de datos (entidad-relación)","clave":true},{"fase":"Planeación","id":"s7","rap":"593103","t":"Artefactos de diseño: diagrama de clases y arquitectura","clave":false},{"fase":"Planeación","id":"s8","rap":"593100","t":"Prototipo de la interfaz (bocetos o mockups)","clave":false},{"fase":"Ejecución","id":"s9","rap":"593106","t":"Plan de actividades de construcción","clave":false},{"fase":"Ejecución","id":"s10","rap":"593107","t":"Base de datos construida a partir del modelo","clave":false},{"fase":"Ejecución","id":"s11","rap":"593104","t":"Componentes front-end (vistas)","clave":false}],"colores":[["verde","Completo y guardado en el Drive"],["amarillo","Existe, pero está incompleto o desactualizado"],["rojo","No existe todavía"]],"reglaRuta":"Si el informe de requisitos, las historias de usuario o el modelo de datos están en **rojo**, el equipo toma la **ruta B · Ponerse al día**. Si no, toma la **ruta A · Avanzar a la construcción**.","drive":[["00_Bitacora","Bitácora de los dos días (un documento, una entrada por día)"],["01_Semaforo","Reporte del semáforo y el plan de mejora"],["02_Requisitos_y_modelo","Solo ruta B: historias de usuario y modelo de datos"],["03_Plan_de_construccion","Matriz «del diseño al código» (hoja de cálculo)"],["04_Mapa_de_navegacion","Mapa de navegación y vistas con sus endpoints"],["05_Base_de_datos","Script SQL preliminar y captura de la prueba"]],"roles":[["Con computador","Construye: crea el proyecto Spring Boot, la base de datos local y el primer CRUD; lo sube a GitHub."],["Con celular","Diseña, documenta y revisa: semáforo, matriz, mapa de navegación, script SQL en el navegador, análisis de vulnerabilidad y revisión del código en GitHub."]],"historias":[["HU1","Como administrador quiero registrar productos con su precio y existencias para controlar el inventario","Alta"],["HU2","Como vendedor quiero buscar un producto por su nombre para atender rápido al cliente","Alta"],["HU3","Como administrador quiero clasificar los productos por categoría para encontrarlos fácil","Media"],["HU4","Como vendedor quiero registrar una venta con varios productos para no anotarla en el cuaderno","Media"],["HU5","Como dueño quiero ver el total vendido en el día para hacer el cierre de caja","Baja"]],"entidades":[["Categoria","id, nombre","Una categoría tiene muchos productos"],["Producto","id, nombre, precio, existencias, categoria","Cada producto pertenece a una categoría"],["Venta","id, fecha, total","Una venta tiene muchos detalles"],["DetalleVenta","id, venta, producto, cantidad, precioUnitario","Cada detalle une una venta con un producto"]],"matrizCols":["Requisito","Entidad","Repositorio","Servicio","Endpoints","Vista","Prioridad","Responsable","Fecha"],"matrizEj":[["HU1 Registrar productos","Producto","ProductoRepository","ProductoService","GET /productos · GET /productos/nuevo · POST /productos · GET /productos/{id}/editar · POST /productos/{id}/eliminar","productos.html, producto-form.html","Alta (MVP)","Ana","18 nov"],["HU2 Buscar productos","Producto","findByNombreContainingIgnoreCase","ProductoService.buscar","GET /productos?buscar=martillo","productos.html","Alta (MVP)","Luis","19 nov"],["HU3 Categorías","Categoria","CategoriaRepository","CategoriaService","GET /categorias · POST /categorias","categorias.html","Media","Sara","25 nov"],["HU4 Registrar venta","Venta, DetalleVenta","VentaRepository","VentaService (calcula el total y descuenta existencias)","GET /ventas/nueva · POST /ventas","venta-form.html","Media","Ana y Luis","2 dic"],["HU5 Ventas del día","Venta","findByFechaBetween","ReporteService","GET /reportes/ventas-dia","reporte-dia.html","Baja","Sara","9 dic"]],"mapa":[["Inicio","GET /","Menú con accesos a Productos, Categorías, Ventas y Reportes"],["Productos (lista y buscador)","GET /productos","Botones: Nuevo, Editar, Eliminar"],["Formulario de producto","GET /productos/nuevo · GET /productos/{id}/editar","Guardar envía POST /productos y vuelve a la lista"],["Categorías","GET /categorias","Formulario corto en la misma página"],["Nueva venta","GET /ventas/nueva","Agrega productos y cantidades; Guardar envía POST /ventas"],["Ventas del día","GET /reportes/ventas-dia","Total del día y lista de ventas"]],"vulnCols":["Dato o componente","Amenaza","Vulnerabilidad","Impacto","Control propuesto"],"vulnEj":[["Formulario de productos","Inyección SQL","Armar consultas pegando texto del usuario","Alto","Usar JPA o consultas con parámetros (?), nunca concatenar texto"],["Contraseña de la base de datos","Acceso no autorizado","Contraseña escrita en application.properties y subida a GitHub","Alto","Variable de entorno ${DB_PASSWORD} y .gitignore"],["Botón Eliminar producto","Borrado accidental o malicioso","Eliminar con un enlace GET","Medio","Formulario POST con confirmación"],["Página de administración","Uso por personas no autorizadas","Cualquiera que conozca la URL entra","Alto","Inicio de sesión y roles (Spring Security, más adelante)"],["Precio y existencias","Datos inválidos","Se aceptan negativos o vacíos","Medio","Validación en el formulario y restricciones CHECK en la base de datos"],["Datos de clientes (si los guarda)","Uso indebido de datos personales","Guardar más datos de los necesarios, sin autorización","Alto","Pedir solo lo necesario y la autorización del titular (Ley 1581 de 2012)"]],"dias":[{"id":"lunes","nombre":"Lunes","tema":"Revisar y planear","misiones":[{"id":"l1","titulo":"Encuentro de inicio y carpeta del equipo","min":30,"quien":"Todo el equipo","rap":"","objetivo":"Arrancar juntos, repartir roles y dejar lista la carpeta del Drive donde irá cada evidencia.","pasos":["Conéctese al encuentro sincrónico de 15 minutos con el instructor.","En la carpeta del equipo en el Drive, cree las subcarpetas de la tabla «Carpeta del equipo».","Repartan responsabilidades: quién lleva la bitácora, quién llena la matriz y quién organiza el Drive. Escríbanlo en la bitácora.","Abran la bitácora (un documento en `00_Bitacora`) y anoten la hora de inicio."],"evidencia":"Subcarpetas creadas y primera entrada en la bitácora con las responsabilidades."},{"id":"l2","titulo":"Semáforo del proyecto","min":45,"quien":"Todo el equipo","rap":"Todos los entregables a la fecha","objetivo":"Revisar con honestidad cómo está el proyecto frente a lo que pide el proyecto formativo y decidir la ruta del equipo.","pasos":["Revisen juntos cada uno de los 12 entregables y márquenlo en verde, amarillo o rojo.","Para cada entregable en amarillo o rojo, escriban qué falta y quién lo completará.","Apliquen la regla de la ruta: A (avanzar) o B (ponerse al día).","Copien el reporte del semáforo y guárdenlo en `01_Semaforo`."],"evidencia":"Reporte del semáforo con el plan de mejora y la ruta elegida."},{"id":"l3b","ruta":"B","titulo":"Lo mínimo para construir","min":120,"quien":"Todo el equipo","rap":"593347 · 592373 · 593101","objetivo":"Sin requisitos ni modelo de datos no se puede programar. Hoy se hace la versión mínima de los dos, para alcanzar al resto del grupo.","pasos":["Escriban de **5 a 8 historias de usuario** con la forma «Como [rol] quiero [acción] para [beneficio]». Prioricen: Alta, Media o Baja.","De las historias, saquen las **entidades** (los sustantivos que se guardan: producto, cliente, venta…) y sus atributos.","Dibujen el **modelo de datos**: entidades, atributos, llave primaria y relaciones (uno a muchos). Sirve en papel, con foto clara.","Guarden todo en `02_Requisitos_y_modelo`."],"evidencia":"Historias de usuario priorizadas y modelo de datos."},{"id":"l3a","ruta":"A","titulo":"Mapa de navegación con endpoints","min":90,"quien":"Todo el equipo","rap":"593100 · 593104","objetivo":"El proyecto formativo pide un mapa de navegación. Este además conecta cada pantalla con el endpoint de Spring Boot que la atiende.","pasos":["Hagan la lista de pantallas del sistema: inicio, listas, formularios, reportes.","Dibujen cómo se pasa de una a otra (flechas). Sirve en papel con foto, en Canva o en cualquier app de diagramas.","Anoten en cada pantalla su endpoint: `GET /productos`, `POST /productos`…","Guarden la imagen en `04_Mapa_de_navegacion`."],"evidencia":"Mapa de navegación con el endpoint de cada pantalla."},{"id":"l4","titulo":"Del diseño al código: el plan de construcción","min":90,"quien":"Todo el equipo","rap":"593106 · Planear actividades de construcción","objetivo":"Traducir cada requisito a las piezas de Spring Boot que ya conocen (entidad, repositorio, servicio, endpoint y vista) y convertirlo en un plan con prioridades, responsables y fechas.","pasos":["Tomen sus historias de usuario y llenen una fila de la matriz por cada una.","Para cada fila, identifiquen la entidad, el repositorio, el servicio, los endpoints y la vista, como en la cafetería.","Marquen como **MVP** las 2 o 3 historias más importantes: serán lo primero que se programe.","Asignen un responsable y una fecha a cada fila.","Copien la matriz a una hoja de cálculo y guárdenla en `03_Plan_de_construccion`."],"evidencia":"Matriz «del diseño al código» completa, con el MVP marcado."},{"id":"l5","titulo":"Cierre del día","min":30,"quien":"Todo el equipo","rap":"","objetivo":"Dejar registro de lo hecho y de lo que queda para mañana.","pasos":["Escriban en la bitácora: qué hicieron, qué se les dificultó y qué harán mañana.","Revisen que cada evidencia del día esté en su subcarpeta del Drive.","Conéctense al encuentro de cierre de 15 minutos."],"evidencia":"Entrada del lunes en la bitácora."}]},{"id":"martes","nombre":"Martes","tema":"Construir la base de datos","misiones":[{"id":"m1","titulo":"Construcción preliminar de la base de datos","min":150,"quien":"Todo el equipo (se puede desde el celular)","rap":"593107 · Construir la base de datos","objetivo":"Convertir el modelo de datos en un script SQL real y comprobar que funciona. Es una versión **preliminar**: crecerá cuando empiecen a programar.","pasos":["Tomen el modelo de datos y escriban un `CREATE TABLE` por entidad, con su llave primaria y sus llaves foráneas. Usen el ejemplo de la ferretería como guía.","Usen nombres en minúscula y con guion bajo (`detalle_venta`): son los que Spring Boot espera cuando programen.","Agreguen restricciones: `NOT NULL` en lo obligatorio y `CHECK` en lo que no puede ser negativo.","Inserten de 3 a 5 filas de prueba por tabla y escriban un `SELECT` con `JOIN` que muestre datos de dos tablas relacionadas.","Abran **DB Fiddle** (db-fiddle.com) en el celular o el computador, elijan PostgreSQL, peguen el script y ejecútenlo. Corrijan hasta que no haya errores.","Guarden el script `.sql` y una captura del resultado en `05_Base_de_datos`."],"evidencia":"Script SQL preliminar y captura del resultado de la consulta."},{"id":"m2a","ruta":"A","titulo":"Revisión cruzada del diseño","min":60,"quien":"Todo el equipo","rap":"593102 · Verificar los entregables de diseño","objetivo":"Comprobar que el modelo, la matriz, el mapa de navegación y la base de datos cuentan la misma historia antes de programar.","pasos":["Cada entidad de la matriz, ¿tiene su tabla en el script? Cada tabla, ¿aparece en alguna fila de la matriz?","Cada pantalla del mapa de navegación, ¿muestra o guarda datos que existen en alguna tabla?","Cada historia marcada como MVP, ¿tiene su endpoint y su vista en la matriz y en el mapa?","Corrijan lo que no coincida y anoten los cambios en la bitácora."],"evidencia":"Lista de inconsistencias encontradas y corregidas, en la bitácora."},{"id":"m2b","ruta":"B","titulo":"Mapa de navegación con endpoints","min":90,"quien":"Todo el equipo","rap":"593100 · 593104","objetivo":"Hacer hoy el mapa de navegación que la ruta A hizo el lunes, para que su diseño quede completo.","pasos":["Hagan la lista de pantallas del sistema a partir de sus historias de usuario.","Dibujen cómo se pasa de una a otra (flechas). Sirve en papel con foto, en Canva o en cualquier app de diagramas.","Anoten en cada pantalla su endpoint: `GET /productos`, `POST /productos`…","Guarden la imagen en `04_Mapa_de_navegacion`."],"evidencia":"Mapa de navegación con el endpoint de cada pantalla."},{"id":"m3","titulo":"Cierre y reporte final","min":30,"quien":"Todo el equipo","rap":"","objetivo":"Dejar registro de los dos días y todo listo en el Drive.","pasos":["Escriban en la bitácora qué hicieron el martes, qué se les dificultó y cuál es el siguiente paso del proyecto.","Generen el **reporte final** en esta ruta, cópienlo y péguenlo en la bitácora.","Revisen que cada evidencia esté en su subcarpeta y conéctense al encuentro de cierre."],"evidencia":"Reporte final pegado en la bitácora."}]}],"criterios":[["Semáforo y plan de mejora","Los 12 entregables evaluados con justificación y responsables para lo pendiente","593106"],["Requisitos y modelo (ruta B)","Al menos 5 historias priorizadas y un modelo de datos con relaciones","593347 · 593101"],["Plan de construcción","Matriz completa: cada requisito con entidad, endpoints, vista, prioridad, responsable y fecha; MVP marcado","593106"],["Mapa de navegación","Todas las pantallas conectadas y con su endpoint","593100 · 593104"],["Base de datos","Script ejecutado sin errores, con llaves, restricciones, datos de prueba y un JOIN","593107"],["Primer módulo (con computador)","CRUD de la entidad principal con servicio en medio, en GitHub y sin contraseñas","593108"],["Revisión de código (con celular)","Observaciones concretas según la lista de revisión","593104"],["Análisis de vulnerabilidad","Al menos 5 riesgos con un control adecuado para cada uno","Entregable 2"],["Video y bitácora","Video de máximo 2 minutos y bitácora de los dos días","Evidencia del trabajo remoto"]],"SQL":"-- Base de datos de ejemplo: Ferretería Don Chepe (Olaya Herrera, Cartagena)\n-- Se construye a partir del modelo de datos (RAP 593107)\n\nCREATE TABLE categoria (\n  id     BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,\n  nombre VARCHAR(80) NOT NULL UNIQUE\n);\n\nCREATE TABLE producto (\n  id           BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,\n  nombre       VARCHAR(120) NOT NULL,\n  precio       INTEGER NOT NULL CHECK (precio >= 0),\n  existencias  INTEGER NOT NULL DEFAULT 0 CHECK (existencias >= 0),\n  categoria_id BIGINT REFERENCES categoria(id)\n);\n\nCREATE TABLE venta (\n  id    BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,\n  fecha TIMESTAMP NOT NULL DEFAULT now(),\n  total INTEGER NOT NULL DEFAULT 0\n);\n\nCREATE TABLE detalle_venta (\n  id              BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,\n  venta_id        BIGINT NOT NULL REFERENCES venta(id),\n  producto_id     BIGINT NOT NULL REFERENCES producto(id),\n  cantidad        INTEGER NOT NULL CHECK (cantidad > 0),\n  precio_unitario INTEGER NOT NULL\n);\n\n-- Datos de prueba\nINSERT INTO categoria (nombre) VALUES ('Herramientas'), ('Pinturas'), ('Eléctricos');\n\nINSERT INTO producto (nombre, precio, existencias, categoria_id) VALUES\n  ('Martillo de uña 16 oz', 28000, 12, 1),\n  ('Destornillador de pala', 9500, 30, 1),\n  ('Galón de vinilo blanco', 62000, 8, 2),\n  ('Rodillo de 9 pulgadas', 14000, 15, 2),\n  ('Bombillo LED 12 W', 7000, 40, 3);\n\nINSERT INTO venta (total) VALUES (42000);\nINSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario) VALUES\n  (1, 1, 1, 28000),\n  (1, 5, 2, 7000);\n\n-- Comprobar: productos con su categoría\nSELECT p.nombre, c.nombre AS categoria, p.precio, p.existencias\nFROM producto p\nJOIN categoria c ON c.id = p.categoria_id\nORDER BY c.nombre, p.nombre;\n\n-- Comprobar: detalle de la venta 1\nSELECT v.id AS venta, p.nombre, d.cantidad, d.precio_unitario\nFROM detalle_venta d\nJOIN venta v ON v.id = d.venta_id\nJOIN producto p ON p.id = d.producto_id\nWHERE v.id = 1;"};
+const KEY = 'mision-proyecto-v2';
+let S = { equipo: '', proyecto: '', empresa: '', integrantes: [{ n: '' }], sem: {}, notas: {}, done: {}, matriz: [], links: { drive: '' } };
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function md(t) {
+  let h = esc(t);
+  h = h.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<i>$2</i>');
+  return h;
+}
+const plain = t => String(t).replace(/\*\*([^*]+)\*\*/g, '$1').replace(/`([^`]+)`/g, '$1').replace(/\*([^*]+)\*/g, '$1');
+
+// ---------- lógica ----------
+function ruta() {
+  const claves = D.semaforo.filter(s => s.clave);
+  if (claves.some(s => !S.sem[s.id])) return null;
+  return claves.some(s => S.sem[s.id] === 'rojo') ? 'B' : 'A';
+}
+function aplica(m) {
+  const r = ruta();
+  return !(m.ruta && r && m.ruta !== r);
+}
+const todas = () => D.dias.flatMap(d => d.misiones);
+function avance() { const ap = todas().filter(aplica); return [ap.filter(m => S.done[m.id]).length, ap.length]; }
+function renderMeter() {
+  const [a, b] = avance();
+  $('#meterFill').style.width = (b ? a / b * 100 : 0) + '%';
+  $('#meterTxt').textContent = `${a} de ${b} misiones`;
+  $('#teamTag').textContent = S.equipo ? `${S.equipo}${ruta() ? ' · ruta ' + ruta() : ''}` : 'Trabajo remoto · ADSO 3230489';
+}
+
+// ---------- vistas ----------
+function viewInicio() {
+  return `<div class="view">
+  <header><div class="eyebrow">Proyecto formativo 2491046 · dos días de trabajo remoto</div><h2>${md(D.meta.titulo)}</h2>
+    <p>Estos dos días su equipo revisa cómo va su proyecto frente a lo que pide el SENA a la fecha, completa lo que falte del análisis y el diseño, y construye una primera versión de la base de datos.</p></header>
+  <div class="note"><b>Todo se puede hacer desde el celular.</b> Solo necesita internet: el diseño se hace en papel o en apps, y la base de datos se prueba en el navegador.</div>
+  <section class="block"><h3>Datos del equipo</h3>
+    <div class="grid2">
+      <div class="field"><label for="equipo">Nombre del equipo</label><input id="equipo" data-s="equipo" value="${esc(S.equipo)}" placeholder="Ej.: Equipo 4"></div>
+      <div class="field"><label for="proyecto">Nombre del proyecto</label><input id="proyecto" data-s="proyecto" value="${esc(S.proyecto)}" placeholder="Ej.: Sistema de inventario"></div>
+      <div class="field"><label for="empresa">Empresa o cliente</label><input id="empresa" data-s="empresa" value="${esc(S.empresa)}" placeholder="Ej.: Ferretería Don Chepe"></div>
+    </div>
+    <h3 style="font-size:1rem;margin-top:6px">Integrantes</h3>
+    <div id="integrantes" class="builder"></div>
+    <div class="row"><button type="button" class="btn small ghost" id="addInt">+ Agregar integrante</button></div>
+  </section>
+  <section class="block"><h3>Cómo funciona</h3>
+    <div class="cards">
+      <div class="card"><b>1 · Semáforo</b><p>Revisan los 12 entregables del proyecto y la app les dice qué ruta tomar.</p></div>
+      <div class="card"><b>2 · Lunes y martes</b><p>El lunes revisan y planean; el martes construyen la base de datos preliminar. Cada misión trae pasos, un ejemplo y la evidencia para el Drive.</p></div>
+      <div class="card"><b>3 · Reporte</b><p>Al final, la app arma el reporte del equipo para pegarlo en la bitácora del Drive.</p></div>
+    </div>
+    <p class="eyebrow" style="text-transform:none;letter-spacing:0;font-weight:400">Su avance se guarda en este celular o computador. Si cambia de dispositivo, empieza de nuevo: por eso el reporte va al Drive.</p>
+  </section>
+  <section class="block"><h3>Carpeta del equipo en el Drive</h3>
+    <div class="tbl"><table><thead><tr><th>Subcarpeta</th><th>Qué va allí</th></tr></thead><tbody>${D.drive.map(([a, b]) => `<tr><td><code>${a}</code></td><td>${esc(b)}</td></tr>`).join('')}</tbody></table></div>
+  </section>
+  <section class="block"><h3>El ejemplo que los acompaña</h3>
+    <p>Cada misión trae un ejemplo resuelto de la <b>${esc(D.meta.ejemplo)}</b>, ${esc(D.meta.ejemploDesc)}. Úsenlo como modelo, pero no lo copien: trabajen sobre su propio proyecto.</p>
+  </section>
+  <div class="next"><a class="btn primary" href="#semaforo" style="text-decoration:none">Ir al semáforo</a></div>
+  </div>`;
+}
+function renderIntegrantes() {
+  $('#integrantes').innerHTML = S.integrantes.map((p, i) => `<div class="brow"><div class="bfields">
+    <div class="field"><label for="in${i}">Integrante ${i + 1}</label><input id="in${i}" data-int="${i}" data-k="n" value="${esc(p.n)}" placeholder="Nombre completo"></div>
+  </div>${S.integrantes.length > 1 ? `<div class="row"><button type="button" class="del" data-delint="${i}">Quitar</button></div>` : ''}</div>`).join('');
+}
+
+function viewSemaforo() {
+  const r = ruta();
+  const c = { verde: 0, amarillo: 0, rojo: 0 }; D.semaforo.forEach(s => S.sem[s.id] && c[S.sem[s.id]]++);
+  const faltan = D.semaforo.length - c.verde - c.amarillo - c.rojo;
+  let fase = '';
+  const items = D.semaforo.map(s => {
+    const head = s.fase !== fase ? `<div class="sem-fase">${s.fase}</div>` : ''; fase = s.fase;
+    const v = S.sem[s.id] || '';
+    return `${head}<div class="sem-item" data-c="${v}"><div class="sem-top"><span>${esc(s.t)}${s.clave ? '<span class="clave">clave</span>' : ''}<br><small>RAP ${s.rap}</small></span>
+      <div class="tri" role="group" aria-label="Estado">${D.colores.map(([k, d]) => `<button type="button" data-sem="${s.id}" data-v="${k}" aria-pressed="${v === k}" title="${esc(d)}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div></div>
+      ${v && v !== 'verde' ? `<div class="field"><label for="nota-${s.id}">¿Qué falta y quién lo completa?</label><input id="nota-${s.id}" data-nota="${s.id}" value="${esc(S.notas[s.id] || '')}" placeholder="Ej.: faltan los requisitos no funcionales · Luis, martes"></div>` : ''}</div>`;
+  }).join('');
+  const verdict = r ? `<div class="verdict"><span class="eyebrow">Ruta del equipo</span><h3>${r === 'A' ? 'Ruta A · Avanzar a la construcción' : 'Ruta B · Ponerse al día'}</h3>
+    <p>${r === 'A' ? 'Tienen lo esencial del análisis y el diseño. El lunes hacen el mapa de navegación y el plan de construcción; el martes, la base de datos preliminar y una revisión cruzada de todo el diseño.' : 'Les falta algo esencial para construir. El lunes hacen la versión mínima de los requisitos y del modelo de datos, y con eso el plan de construcción. El martes construyen la base de datos preliminar y el mapa de navegación.'}</p></div>`
+    : `<div class="note"><b>Para saber su ruta</b>, marquen al menos los tres entregables «clave». ${md(D.reglaRuta)}</div>`;
+  return `<div class="view">
+  <header><div class="eyebrow">Lunes · misión 2</div><h2>Semáforo del proyecto</h2><p>Marquen cada entregable con honestidad. Lo amarillo y lo rojo no restan: es lo que van a planear.</p></header>
+  <div class="tbl"><table><tbody>${D.colores.map(([k, d]) => `<tr><td><b>${k[0].toUpperCase() + k.slice(1)}</b></td><td>${esc(d)}</td></tr>`).join('')}</tbody></table></div>
+  <div class="counts" aria-live="polite"><span class="v">${c.verde} verdes</span><span class="a">${c.amarillo} amarillos</span><span class="r">${c.rojo} rojos</span>${faltan ? `<span>${faltan} sin marcar</span>` : ''}</div>
+  ${verdict}
+  <div class="sem">${items}</div>
+  ${r ? `<div class="next"><a class="btn primary" href="#lunes" style="text-decoration:none">Ir a las misiones del lunes</a></div>` : ''}
+  </div>`;
+}
+
+function ejemploDe(m) {
+  if (m.id === 'l2') return '';
+  if (m.id === 'l3b') return `<details class="ej"><summary>Ver ejemplo de la ferretería</summary><div>
+    <div class="tbl"><table><thead><tr><th>Código</th><th>Historia de usuario</th><th>Prioridad</th></tr></thead><tbody>${D.historias.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="tbl"><table><thead><tr><th>Entidad</th><th>Atributos</th><th>Relación</th></tr></thead><tbody>${D.entidades.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></details>`;
+  if (m.id === 'l3a' || m.id === 'm2b') return `<details class="ej"><summary>Ver ejemplo de la ferretería</summary><div>
+    <div class="tbl"><table><thead><tr><th>Pantalla</th><th>Endpoint</th><th>Cómo se navega</th></tr></thead><tbody>${D.mapa.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></details>`;
+  if (m.id === 'l4') return `<details class="ej"><summary>Ver ejemplo de la ferretería</summary><div>
+    <div class="tbl"><table><thead><tr>${D.matrizCols.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${D.matrizEj.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <p>Es lo que hizo en la cafetería, pero al revés: allá tenía el código; aquí parte del requisito y decide qué código va a escribir.</p></div></details>
+    <section class="block"><h3 style="font-size:1.05rem">Su matriz</h3><div class="builder" data-builder="matriz"></div></section>`;
+  if (m.id === 'm1') return `<details class="ej"><summary>Ver el script de la ferretería</summary><div>
+    <div class="row"><button type="button" class="btn small" data-copysql="1">Copiar el script</button><span class="toast" id="sqlToast"></span></div>
+    <pre class="sql">${esc(D.SQL)}</pre>
+    <p>En DB Fiddle: elija <b>PostgreSQL</b>, ponga las tablas y los <code>INSERT</code> en <i>Schema SQL</i>, los <code>SELECT</code> en <i>Query SQL</i> y presione <b>Run</b>. Abra <a href="https://www.db-fiddle.com/" target="_blank" rel="noopener">db-fiddle.com</a>; si no carga, use <a href="https://onecompiler.com/postgresql" target="_blank" rel="noopener">OneCompiler</a>.</p></div></details>`;
+  if (m.id === 'm2a') return `<details class="ej"><summary>Ver ejemplo de una inconsistencia</summary><div>
+    <p>En la ferretería, la matriz decía que la historia HU5 (ventas del día) usa la entidad <b>Venta</b> con su fecha, y el mapa tenía la pantalla «Ventas del día». Pero el primer script no tenía la columna <code>fecha</code> en la tabla <code>venta</code>. Se corrigió agregando <code>fecha TIMESTAMP NOT NULL DEFAULT now()</code>.</p></div></details>`;
+  return '';
+}
+function viewDia(d) {
+  const r = ruta();
+  let n = 0;
+  const cards = d.misiones.map(m => {
+    const ok = aplica(m); n++;
+    const motivo = !ok ? `Solo para la ruta ${m.ruta}` : '';
+    const etiqueta = m.ruta ? `<span class="tag">Ruta ${m.ruta}</span>` : '';
+    return `<details class="mision ${S.done[m.id] ? 'done' : ''} ${ok ? '' : 'na'}">
+      <summary><span class="mnum">${S.done[m.id] ? '✓' : n}</span><span class="mtit"><b>${esc(m.titulo)}</b><small>${motivo || esc(m.quien)}</small></span><span class="mtime">${m.min} min</span></summary>
+      <div class="mbody">
+        <div>${etiqueta}${m.rap ? `<span class="tag ra">${esc(m.rap)}</span>` : ''}</div>
+        <p><b>Objetivo:</b> ${md(m.objetivo)}</p>
+        <ol class="pasos">${m.pasos.map(p => `<li>${md(p)}</li>`).join('')}</ol>
+        ${m.id === 'l2' ? `<a class="btn primary" href="#semaforo" style="text-decoration:none;justify-self:start">Abrir el semáforo</a>` : ''}
+        ${ejemploDe(m)}
+        ${ok ? `<label class="evid"><input type="checkbox" data-done="${m.id}" ${S.done[m.id] ? 'checked' : ''}><span><b>Evidencia lista en el Drive:</b> ${md(m.evidencia)}</span></label>` : ''}
+      </div></details>`;
+  }).join('');
+  return `<div class="view">
+  <header><div class="eyebrow">${d.nombre} · ${d.tema}</div><h2>${d.id === 'lunes' ? 'Revisar y planear' : 'Construir la base de datos'}</h2>
+    <p>${r ? `Su equipo va por la <b>ruta ${r}</b>. Las misiones que no le corresponden aparecen atenuadas.` : 'Primero hagan el semáforo: de él depende qué misiones les tocan.'} Toque una misión para abrirla.</p></header>
+  <div class="block">${cards}</div>
+  <div class="next"><a class="btn primary" href="${d.id === 'lunes' ? '#martes' : '#reporte'}" style="text-decoration:none">${d.id === 'lunes' ? 'Ver las misiones del martes' : 'Generar el reporte'}</a></div>
+  </div>`;
+}
+
+// ---------- constructores de tablas ----------
+const BUILD = {
+  matriz: { cols: D.matrizCols, key: 'matriz', titulo: 'Requisito', ph: ['HU1 Registrar …', 'Producto', 'ProductoRepository', 'ProductoService', 'GET /… · POST /…', 'lista.html', '', 'Nombre', 'dd mmm'], sel: { 6: ['Alta (MVP)', 'Alta', 'Media', 'Baja'] } },
+};
+function renderBuilder(el) {
+  const B = BUILD[el.dataset.builder], rows = S[B.key];
+  if (!rows.length) rows.push(B.cols.map(() => ''));
+  el.innerHTML = rows.map((r, i) => `<div class="brow"><div class="brow-head"><b>${B.titulo} ${i + 1}</b>${rows.length > 1 ? `<button type="button" class="del" data-delrow="${i}" data-b="${el.dataset.builder}">Quitar</button>` : ''}</div>
+    <div class="bfields">${B.cols.map((c, j) => { const id = `${B.key}-${i}-${j}`; return `<div class="field"><label for="${id}">${esc(c)}</label>${B.sel[j]
+      ? `<select id="${id}" data-cell="${el.dataset.builder}" data-i="${i}" data-j="${j}"><option value="">Elija…</option>${B.sel[j].map(o => `<option ${r[j] === o ? 'selected' : ''}>${o}</option>`).join('')}</select>`
+      : `<input id="${id}" data-cell="${el.dataset.builder}" data-i="${i}" data-j="${j}" value="${esc(r[j])}" placeholder="${esc(B.ph[j] || '')}">`}</div>`; }).join('')}</div></div>`).join('')
+    + `<div class="row"><button type="button" class="btn small ghost" data-addrow="${el.dataset.builder}">+ Agregar ${B.titulo.toLowerCase()}</button><button type="button" class="btn small" data-tsv="${el.dataset.builder}">Copiar para hoja de cálculo</button><span class="toast" data-toast="${el.dataset.builder}"></span></div>
+    <p style="font-size:.88rem;color:var(--ink-soft)">«Copiar para hoja de cálculo» copia la tabla con sus columnas. Péguela en la celda A1 de una hoja de Google y queda cada dato en su columna.</p>`;
+}
+const filled = rows => rows.filter(r => r.some(c => String(c).trim()));
+function tsv(b) { const B = BUILD[b]; return [B.cols, ...filled(S[B.key])].map(r => r.map(c => String(c).replace(/[\t\n]/g, ' ')).join('\t')).join('\n'); }
+
+// ---------- reporte ----------
+function reporte() {
+  const r = ruta(), [a, b] = avance(), fecha = new Date().toLocaleString('es-CO', { dateStyle: 'long', timeStyle: 'short' });
+  const L = [];
+  L.push('REPORTE DE TRABAJO REMOTO · PROYECTO FORMATIVO 2491046', 'ADSO · Ficha 3230489 · ' + fecha, '');
+  L.push('Equipo: ' + (S.equipo || '(sin nombre)'), 'Proyecto: ' + (S.proyecto || '(sin nombre)'), 'Empresa o cliente: ' + (S.empresa || '(sin dato)'));
+  L.push('Integrantes:'); S.integrantes.filter(p => p.n.trim()).forEach(p => L.push('  - ' + p.n.trim()));
+  L.push('', 'RUTA: ' + (r ? (r === 'A' ? 'A · Avanzar a la construcción' : 'B · Ponerse al día') : 'sin definir (falta el semáforo)'), '');
+  L.push('SEMÁFORO');
+  D.semaforo.forEach(s => { const v = S.sem[s.id]; L.push(`  [${(v || 'sin marcar').toUpperCase()}] ${s.t} (RAP ${s.rap})` + (v && v !== 'verde' && S.notas[s.id] ? `\n      Plan: ${S.notas[s.id]}` : '')); });
+  L.push('', `MISIONES: ${a} de ${b} con evidencia en el Drive`);
+  D.dias.forEach(d => d.misiones.filter(aplica).forEach(m => L.push(`  [${S.done[m.id] ? 'X' : ' '}] ${d.nombre} · ${m.titulo}`)));
+  const mz = filled(S.matriz);
+  L.push('', `PLAN DE CONSTRUCCIÓN (${mz.length} ${mz.length === 1 ? 'requisito' : 'requisitos'})`);
+  mz.forEach(r => L.push(`  - ${r[0]} → ${r[1]} | ${r[4]} | ${r[5]} | ${r[6]} | ${r[7]} | ${r[8]}`));
+  L.push('', 'CARPETA DEL DRIVE: ' + (S.links.drive || '(pendiente)'));
+  return L.join('\n');
+}
+function viewReporte() {
+  return `<div class="view">
+  <header><div class="eyebrow">Martes · cierre</div><h2>Reporte final del equipo</h2><p>Peguen el enlace de su carpeta, copien el reporte y péguenlo en la bitácora del Drive (<code>00_Bitacora</code>).</p></header>
+  <section class="block"><h3>Carpeta del equipo</h3>
+    <div class="field"><label for="lk-drive">Enlace de la carpeta del Drive</label><input id="lk-drive" data-link="drive" value="${esc(S.links.drive)}" placeholder="https://drive.google.com/…"></div></section>
+  <section class="block"><h3>Reporte</h3>
+    <div class="row"><button type="button" class="btn primary" id="copyRep">Copiar el reporte</button><span class="toast" id="repToast"></span></div>
+    <textarea class="report" id="rep" readonly aria-label="Reporte del equipo">${esc(reporte())}</textarea></section>
+  <section class="block"><h3>Volver a empezar</h3><div class="row" id="resetBox"><button type="button" class="btn ghost small" id="reset">Borrar los datos de este dispositivo</button></div></section>
+  </div>`;
+}
+
+// ---------- copiar ----------
+function copiar(text, toastEl, fallbackEl) {
+  const ok = () => { if (toastEl) { toastEl.textContent = 'Copiado'; setTimeout(() => (toastEl.textContent = ''), 1800); } };
+  const fb = () => { if (fallbackEl) { fallbackEl.focus(); fallbackEl.select(); } if (toastEl) toastEl.textContent = 'Seleccionado: mantenga presionado y copie'; };
+  try { navigator.clipboard.writeText(text).then(ok, fb); } catch (e) { fb(); }
+}
+
+// ---------- navegación ----------
+const VIEWS = ['inicio', 'semaforo', 'lunes', 'martes', 'reporte'];
+let cur = '';
+function go(id) {
+  if (!VIEWS.includes(id)) id = 'inicio';
+  cur = id;
+  const app = $('#app');
+  if (id === 'inicio') { app.innerHTML = viewInicio(); renderIntegrantes(); }
+  else if (id === 'semaforo') app.innerHTML = viewSemaforo();
+  else if (id === 'lunes' || id === 'martes') { app.innerHTML = viewDia(D.dias.find(d => d.id === id)); app.querySelectorAll('[data-builder]').forEach(renderBuilder); }
+  else app.innerHTML = viewReporte();
+  document.querySelectorAll('nav.tabs a').forEach(a => { if (a.dataset.tab === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  renderMeter();
+}
+function rerenderKeepScroll() { const y = scrollY; const open = [...document.querySelectorAll('details[open]')].map(d => [...document.querySelectorAll('details')].indexOf(d)); go(cur); const all = [...document.querySelectorAll('details')]; open.forEach(i => all[i] && (all[i].open = true)); scrollTo(0, y); }
+
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.s) { S[t.dataset.s] = t.value; save(); renderMeter(); }
+  else if (t.dataset.int !== undefined) { S.integrantes[+t.dataset.int][t.dataset.k] = t.value; save(); renderMeter(); }
+  else if (t.dataset.nota) { S.notas[t.dataset.nota] = t.value; save(); }
+  else if (t.dataset.cell) { S[BUILD[t.dataset.cell].key][+t.dataset.i][+t.dataset.j] = t.value; save(); }
+  else if (t.dataset.link) { S.links[t.dataset.link] = t.value; save(); const rep = $('#rep'); if (rep) rep.value = reporte(); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.done) { S.done[t.dataset.done] = t.checked; save(); const m = t.closest('.mision'); m.classList.toggle('done', t.checked); m.querySelector('.mnum').textContent = t.checked ? '✓' : [...m.parentNode.querySelectorAll('.mision')].indexOf(m) + 1; renderMeter(); }
+});
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.sem) { S.sem[t.dataset.sem] = S.sem[t.dataset.sem] === t.dataset.v ? '' : t.dataset.v; save(); rerenderKeepScroll(); return; }
+  if (t.id === 'addInt') { S.integrantes.push({ n: '' }); save(); renderIntegrantes(); return; }
+  if (t.dataset.delint) { S.integrantes.splice(+t.dataset.delint, 1); save(); renderIntegrantes(); renderMeter(); return; }
+  if (t.dataset.addrow) { const B = BUILD[t.dataset.addrow]; S[B.key].push(B.cols.map(() => '')); save(); renderBuilder(t.closest('[data-builder]')); return; }
+  if (t.dataset.delrow) { const B = BUILD[t.dataset.b]; S[B.key].splice(+t.dataset.delrow, 1); save(); renderBuilder(t.closest('[data-builder]')); return; }
+  if (t.dataset.tsv) { copiar(tsv(t.dataset.tsv), document.querySelector(`[data-toast="${t.dataset.tsv}"]`)); return; }
+  if (t.dataset.copysql) { copiar(D.SQL, $('#sqlToast')); return; }
+  if (t.id === 'copyRep') { copiar($('#rep').value, $('#repToast'), $('#rep')); return; }
+  if (t.id === 'reset') {
+    $('#resetBox').innerHTML = '<span>¿Seguro? Se borra todo lo que el equipo escribió en este dispositivo.</span><button type="button" class="btn primary small" id="resetYes">Sí, borrar</button><button type="button" class="btn ghost small" id="resetNo">Cancelar</button>';
+    return;
+  }
+  if (t.id === 'resetYes') { try { localStorage.removeItem(KEY); } catch (err) {} S = { equipo: '', proyecto: '', empresa: '', integrantes: [{ n: '' }], sem: {}, notas: {}, done: {}, matriz: [], links: { drive: '' } }; location.hash = '#inicio'; go('inicio'); return; }
+  if (t.id === 'resetNo') { go('reporte'); return; }
+});
+addEventListener('hashchange', () => { go(location.hash.slice(1)); scrollTo(0, 0); });
+go(location.hash.slice(1) || 'inicio');
+</script>
+
+</body></html>
